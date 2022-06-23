@@ -1,0 +1,9 @@
+[submodule "docker-stacks"]
+	path = docker-stacks
+	url = https://github.com/ccha23/docker-stacks.git
+[submodule "jupyterlab-mathjax3-global"]
+	path = jupyterlab-mathjax3-global
+	url = https://github.com/ccha23/jupyterlab-mathjax3-global.git
+[submodule "jsxgraph-magic"]
+	path = jsxgraph-magic
+	url = https://github.com/ccha23/jsxgraph-magic.git
