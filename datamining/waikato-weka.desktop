@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=weka
+GenericName=Machine learning algorithms for data mining tasks
+Exec=weka-stable-gui
+Terminal=false
+Type=Application
+Icon=waikato-weka
+Categories=Education;Science;Java
+Encoding=UTF-8

@@ -7,3 +7,12 @@
 [submodule "jsxgraph-magic"]
 	path = jsxgraph-magic
 	url = https://github.com/ccha23/jsxgraph-magic.git
+[submodule "jupyterlab-markdownit"]
+	path = jupyterlab-markdownit
+	url = https://github.com/ccha23/jupyterlab-markdownit.git
+[submodule "mytutor"]
+	path = mytutor
+	url = https://github.com/ccha23/mytutor.git
+[submodule "jupyter-www-proxy"]
+	path = jupyter-www-proxy
+	url = https://github.com/ccha23/jupyter-www-proxy.git

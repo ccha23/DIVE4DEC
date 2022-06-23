@@ -2,12 +2,11 @@ PRIVATE_REG=localhost:32000
 PUBLIC_REG=chungc
 VERSION=0.0.0
 
-.PHONY: jsxgraph-mathjax3 scipy-nv
+.PHONY: jsxgraph-mathjax3 scipy-nv remote-display jupyter-interface programming tex math datamining
 
 jsxgraph-mathjax3:
 	docker build --pull \
 				 -t "${PRIVATE_REG}/jsxgraph-mathjax3" -f jsxgraph-mathjax3/Dockerfile .
-	# docker push "${PRIVATE_REG}/jsxgraph-mathjax3"
 
 scipy-nv:
 	docker build --pull \
@@ -23,3 +22,27 @@ scipy-nv:
 			 	 --build-arg BASE_CONTAINER="${PRIVATE_REG}/minimal-notebook-nv" \
 				 -t "${PRIVATE_REG}/scipy-notebook-nv" docker-stacks/scipy-notebook
 	docker push "${PRIVATE_REG}/scipy-notebook-nv"
+
+remote-display:
+	docker build --pull \
+				 -t "${PRIVATE_REG}/remote-display" -f remote-display/Dockerfile .
+
+jupyter-interface:
+	docker build --pull \
+				 -t "${PRIVATE_REG}/jupyter-interface" -f jupyter-interface/Dockerfile .
+
+programming:
+	docker build --pull \
+				 -t "${PRIVATE_REG}/programming" -f programming/Dockerfile .
+
+tex:
+	docker build --pull \
+				 -t "${PRIVATE_REG}/tex" -f tex/Dockerfile .
+
+math:
+	docker build --pull \
+				 -t "${PRIVATE_REG}/math" -f math/Dockerfile .
+
+datamining:
+	docker build --pull \
+				 -t "${PRIVATE_REG}/datamining" -f datamining/Dockerfile .
