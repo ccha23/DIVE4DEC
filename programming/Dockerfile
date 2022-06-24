@@ -81,10 +81,3 @@ RUN cd /tmp/mytutor && \
     fix-permissions "${CONDA_DIR}" && \
     rm -rf /tmp/mytutor
 
-# Jupyter www proxy
-COPY --chown=${NB_UID}:${NB_GID} jupyter-www-proxy/ /tmp/jupyter-www-proxy/
-
-RUN cd /tmp/jupyter-www-proxy && \
-    pip install --quiet --no-cache-dir . && \
-    fix-permissions "${CONDA_DIR}" && \
-    rm -rf /tmp/jupyter-www-proxy

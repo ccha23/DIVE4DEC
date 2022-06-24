@@ -11,7 +11,7 @@ jsxgraph-mathjax3:
 scipy-nv:
 	docker build --pull \
 				 --build-arg ROOT_CONTAINER="nvidia/cuda:11.2.2-cudnn8-runtime-ubuntu20.04" \
-				 --build-arg PYTHON_VERSION="3.10" \
+				 --build-arg PYTHON_VERSION="3.9" \
 				 -t "${PRIVATE_REG}/base-notebook-nv" docker-stacks/base-notebook
 	docker push "${PRIVATE_REG}/base-notebook-nv"
 	docker build --pull \
@@ -56,3 +56,37 @@ deploy: scipy-nv
 	docker build --pull \
 				 --build-arg ROOT_CONTAINER=scipy-nv \
 				 -t "${PRIVATE_REG}/deploy" -f Dockerfile .
+
+main: scipy-nv
+	docker build --pull \
+				 --build-arg BASE_CONTAINER="${PRIVATE_REG}/scipy-notebook-nv" \
+				 -t "${PRIVATE_REG}/main-s1" -f jupyter-interface/Dockerfile .
+	docker push "${PRIVATE_REG}/main-s1"
+	docker build --pull \
+				 --build-arg BASE_CONTAINER="${PRIVATE_REG}/main-s1" \
+				 -t "${PRIVATE_REG}/main-s2" -f programming/Dockerfile .
+	docker push "${PRIVATE_REG}/main-s2"
+	docker build --pull \
+				 --build-arg BASE_CONTAINER="${PRIVATE_REG}/main-s2" \
+				 -t "${PRIVATE_REG}/main-s3" -f tex/Dockerfile .
+	docker push "${PRIVATE_REG}/main-s3"
+	docker build --pull \
+				 --build-arg BASE_CONTAINER="${PRIVATE_REG}/main-s3" \
+				 -t "${PRIVATE_REG}/main-s4" -f math/Dockerfile .
+	docker push "${PRIVATE_REG}/main-s4"
+	docker build --pull \
+				 --build-arg BASE_CONTAINER="${PRIVATE_REG}/main-s4" \
+				 -t "${PRIVATE_REG}/main-s5" -f datamining/Dockerfile .
+	docker push "${PRIVATE_REG}/main-s5"
+	docker build --pull \
+				 --build-arg BASE_CONTAINER="${PRIVATE_REG}/main-s5" \
+				 -t "${PRIVATE_REG}/main-s6" -f remote-display/Dockerfile .
+	docker push "${PRIVATE_REG}/main-s6"
+	docker build --pull \
+				 --build-arg BASE_CONTAINER="${PRIVATE_REG}/main-s6" \
+				 -t "${PRIVATE_REG}/main-s7" -f grading/Dockerfile .
+	docker push "${PRIVATE_REG}/main-s7"
+	docker build --pull \
+				 --build-arg BASE_CONTAINER="${PRIVATE_REG}/main-s7" \
+				 -t "${PRIVATE_REG}/main-s8" -f deploy/Dockerfile .
+	docker push "${PRIVATE_REG}/main-s8"

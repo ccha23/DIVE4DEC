@@ -28,7 +28,7 @@ RUN apt-get update --yes && \
     libzmq3-dev sbcl cl-quicklisp && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
-COPY --chown=${NB_UID}:${NB_GID} sbclrc /etc/sbclrc
+COPY --chown=${NB_UID}:${NB_GID} math/sbclrc /etc/sbclrc
 
 USER ${NB_USER}
 

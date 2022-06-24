@@ -82,6 +82,63 @@ RUN mamba install --quiet --yes \
     mamba clean --all -f -y && \
     fix-permissions "${CONDA_DIR}"
 
+# mathjax 3
+COPY --chown=${NB_UID}:${NB_GID} jupyter-renderers/ /tmp/jupyter-renderers/
+
+RUN cd /tmp/jupyter-renderers/packages/mathjax3-extension && \
+    pip install --quiet --no-cache-dir . && \
+    fix-permissions "${CONDA_DIR}" && \
+    rm -rf /tmp/jupyter-renderers
+
+# JSXGraph
+COPY --chown=${NB_UID}:${NB_GID} jsxgraph-magic/ /tmp/jsxgraph-magic/
+
+RUN cd /tmp/jsxgraph-magic && \
+    pip install --quiet --no-cache-dir . && \
+    fix-permissions "${CONDA_DIR}" && \
+    rm -rf /tmp/jsxgraph-magic
+
+# markdown-it
+RUN mamba install --quiet --yes \
+    'yarn=1.22.*' && \
+    fix-permissions "${CONDA_DIR}" && \
+    mamba clean --all -f -y
+
+COPY --chown=${NB_UID}:${NB_GID} jupyterlab-markdownit/ /tmp/jupyterlab-markdownit/
+
+RUN cd /tmp/jupyterlab-markdownit && \
+    # fix https://github.com/yarnpkg/yarn/issues/6081
+    rm -rf .git && \
+    pip install --quiet --no-cache-dir . && \
+    fix-permissions "${CONDA_DIR}" && \
+    mamba clean --all -f -y && \
+    rm -rf /tmp/jupyterlab-markdownit
+
+# JSXGraph
+COPY --chown=${NB_UID}:${NB_GID} jsxgraph-magic/ /tmp/jsxgraph-magic/
+
+RUN cd /tmp/jsxgraph-magic && \
+    pip install --quiet --no-cache-dir . && \
+    fix-permissions "${CONDA_DIR}" && \
+    rm -rf /tmp/jsxgraph-magic
+
+# Diagrams
+COPY --chown=${NB_UID}:${NB_GID} dimagic/ /tmp/dimagic/
+
+RUN npm install --silent -g diagrams && \
+    cd /tmp/dimagic && \
+    pip install --quiet --no-cache-dir . && \
+    fix-permissions "${CONDA_DIR}" && \
+    rm -rf /tmp/dimagic
+
+# Jupyter www proxy
+COPY --chown=${NB_UID}:${NB_GID} jupyter-www-proxy/ /tmp/jupyter-www-proxy/
+
+RUN cd /tmp/jupyter-www-proxy && \
+    pip install --quiet --no-cache-dir . && \
+    fix-permissions "${CONDA_DIR}" && \
+    rm -rf /tmp/jupyter-www-proxy
+
 # markdown-it
 RUN mamba install --quiet --yes \
     'yarn=1.22.*' && \

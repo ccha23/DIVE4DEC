@@ -22,3 +22,9 @@
 [submodule "ngshare_exchange"]
 	path = ngshare_exchange
 	url = https://github.com/ccha23/ngshare_exchange.git
+[submodule "jupyter-renderers"]
+	path = jupyter-renderers
+	url = https://github.com/ccha23/jupyter-renderers
+[submodule "dimagic"]
+	path = dimagic
+	url = https://github.com/ccha23/dimagic

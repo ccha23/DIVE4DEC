@@ -22,7 +22,7 @@ RUN wget -q -O /tmp/weka.deb 'https://www.cs.waikato.ac.nz/~ml/weka/snapshots/st
     apt-get clean && rm -rf /var/lib/apt/lists/* && \
     echo 'alias weka="/usr/bin/weka-stable-gui"' >> /etc/bash.bashrc
 
-COPY waikato-weka.desktop /tmp/waikato-weka.desktop
+COPY datamining/waikato-weka.desktop /tmp/waikato-weka.desktop
 RUN xdg-desktop-menu install /tmp/waikato-weka.desktop && \
     wget -q https://raw.githubusercontent.com/Waikato/weka-3.8/master/weka/src/main/java/weka/gui/weka_icon_new.png \
     -O /tmp/waikato-weka.png && \
