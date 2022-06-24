@@ -1,0 +1,30 @@
+version: ""
+id: b96e299a-97b7-4d2e-aa48-833ffdf4b532
+machine-id: dive.b4b8400688ef4c289ff4812e6ee075eb
+ssl: true
+cacertpath: /etc/bitfusion/tls/ca.crt
+keypath: /etc/bitfusion/tls/bitfusion.key
+certpath: /etc/bitfusion/tls/bitfusion.crt
+dbcertpath: /etc/bitfusion/tls/ca.crt
+min-tls-version: ""
+timeout: 3s
+authconfig:
+  enabled: true
+  username: ""
+  password: ""
+  dbusername: ""
+  dbpassword: ""
+  token: OOZTICSTSMKIJJB7UZHOWASJCMIN5W3GJGUSW637XP5OB5QAPU5O3GM4N37IUMXEGNXO6PA2PMDXW63IOF37RY4WJTMQEBREPMFSSFTURNKS6ZSYV6YTAJF2CTP5BNWV
+network: {}
+dispatcher:
+  enabled: true
+  rdma:
+    rsocket: true
+    hops: 2
+  srs:
+    auto_release_timeout: 10m
+  cache_store:
+    client_root: /home/jovyan/.bitfusion/cache
+    client_cleanup_threshold_MB: 5120
+    server_root: /var/cache/bitfusion
+    server_cleanup_threshold_MB: 5120

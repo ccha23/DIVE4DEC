@@ -2,7 +2,7 @@ PRIVATE_REG=localhost:32000
 PUBLIC_REG=chungc
 VERSION=0.0.0
 
-.PHONY: jsxgraph-mathjax3 scipy-nv remote-display jupyter-interface programming tex math datamining
+.PHONY: jsxgraph-mathjax3 scipy-nv remote-display jupyter-interface programming tex math datamining grading deploy
 
 jsxgraph-mathjax3:
 	docker build --pull \
@@ -46,3 +46,13 @@ math:
 datamining:
 	docker build --pull \
 				 -t "${PRIVATE_REG}/datamining" -f datamining/Dockerfile .
+
+grading:
+	docker build --pull \
+				 -t "${PRIVATE_REG}/grading" -f grading/Dockerfile .
+
+deploy: scipy-nv
+	cd DIVE-deploy; \
+	docker build --pull \
+				 --build-arg ROOT_CONTAINER=scipy-nv \
+				 -t "${PRIVATE_REG}/deploy" -f Dockerfile .

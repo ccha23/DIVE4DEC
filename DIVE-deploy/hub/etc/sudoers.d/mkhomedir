@@ -1,0 +1,2 @@
+#
+jovyan  ALL=(ALL) NOPASSWD: /usr/sbin/mkhomedir_helper

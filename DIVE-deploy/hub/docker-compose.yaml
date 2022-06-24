@@ -1,0 +1,8 @@
+version: '3'
+
+services: 
+    cs1302:
+        image: localhost:32000/hub:v0.1
+        build: 
+            context: .
+            dockerfile: Dockerfile

@@ -16,3 +16,9 @@
 [submodule "jupyter-www-proxy"]
 	path = jupyter-www-proxy
 	url = https://github.com/ccha23/jupyter-www-proxy.git
+[submodule "nbgrader"]
+	path = nbgrader
+	url = https://github.com/ccha23/nbgrader.git
+[submodule "ngshare_exchange"]
+	path = ngshare_exchange
+	url = https://github.com/ccha23/ngshare_exchange.git
