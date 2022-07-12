@@ -4,27 +4,12 @@ FROM ${BASE_CONTAINER}
 
 USER root
 
-### Desktop ###
-RUN wget -q "https://sourceforge.net/projects/turbovnc/files/3.0/turbovnc_3.0_amd64.deb/download" \
-    -O /tmp/turbovnc_3.0_amd64.deb && \
-    apt-get update --yes && \
-    apt-get install --yes --no-install-recommends \
-    /tmp/turbovnc_3.0_amd64.deb \
-    gnupg \
-    xorg \
-    xfce4 \
-    xfce4-panel \
-    xfce4-session \
-    xfce4-settings \
-    xfce4-terminal \
-    && \
-    apt-get remove -y -q light-locker libllvm11 && \
-    rm /tmp/turbovnc_3.0_amd64.deb && \
-    ln -s /opt/TurboVNC/bin/* /usr/local/bin/ && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
-
 ## Xpra ###
-RUN wget -O - https://xpra.org/gpg.asc | (OUT=$(apt-key add - 2>&1) || echo $OUT) && \
+RUN apt-get update --yes && \
+    apt-get install --yes --no-install-recommends \
+    gnupg \
+    && \
+    wget -O - https://xpra.org/gpg.asc | (OUT=$(apt-key add - 2>&1) || echo $OUT) && \
     echo "deb https://xpra.org/ focal main" > /etc/apt/sources.list.d/xpra.list && \
     apt-get update --yes && \
     apt-get install --yes --no-install-recommends \
@@ -65,13 +50,12 @@ RUN mv /usr/share/icons/hicolor /usr/share/icons/hicolor-orig && \
 
 USER ${NB_UID}
 
-### Xpra and VNC
+### Xpra
 RUN mamba install --quiet --yes \
     'websockify=0.10.*' \
     && \
     pip install --quiet --no-cache-dir \
     'jupyter-xprahtml5-proxy' \
-    'jupyter-desktop-server' \
     && \
     mamba clean --all -f -y && \
     fix-permissions "${CONDA_DIR}"
@@ -80,7 +64,6 @@ RUN mamba install --quiet --yes \
 ENV XDG_MENU_PREFIX='xfce-'
 
 # customize xpra https://xpra.org/manual.html
-COPY --chown=${NB_USER}:${NB_GID} remote-display/init/ /tmp/
+COPY --chown=${NB_USER}:${NB_GID} remote-display/jupyter_xprahtml5_proxy_init.py /tmp/
 
-RUN mv /tmp/jupyter_xprahtml5_proxy_init.py "$(pip show jupyter-xprahtml5-proxy | grep Location | awk '{print $2}')/jupyter_xprahtml5_proxy/__init__.py" && \
-    mv /tmp/jupyter_desktop_init.py "$(pip show jupyter-desktop-server | grep Location | awk '{print $2}')/jupyter_desktop/__init__.py"
+RUN mv /tmp/jupyter_xprahtml5_proxy_init.py "$(pip show jupyter-xprahtml5-proxy | grep Location | awk '{print $2}')/jupyter_xprahtml5_proxy/__init__.py"

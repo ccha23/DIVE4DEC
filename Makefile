@@ -2,13 +2,13 @@ PRIVATE_REG=localhost:32000
 PUBLIC_REG=chungc
 VERSION=0.0.0
 
-.PHONY: jsxgraph-mathjax3 scipy-nv remote-display jupyter-interface programming tex math datamining grading deploy
+.PHONY: jsxgraph-mathjax3 scipy-notebook-nv remote-display jupyter-interface programming tex math datamining grading deploy classic
 
 jsxgraph-mathjax3:
 	docker build --pull \
 				 -t "${PRIVATE_REG}/jsxgraph-mathjax3" -f jsxgraph-mathjax3/Dockerfile .
 
-scipy-nv:
+scipy-notebook-nv:
 	docker build --pull \
 				 --build-arg ROOT_CONTAINER="nvidia/cuda:11.2.2-cudnn8-runtime-ubuntu20.04" \
 				 --build-arg PYTHON_VERSION="3.9" \
@@ -51,6 +51,10 @@ grading:
 	docker build --pull \
 				 -t "${PRIVATE_REG}/grading" -f grading/Dockerfile .
 
+classic:
+	docker build --pull \
+				 -t "${PRIVATE_REG}/classic" -f classic/Dockerfile .
+
 deploy: scipy-nv
 	cd DIVE-deploy; \
 	docker build --pull \
@@ -88,5 +92,10 @@ main: scipy-nv
 	docker push "${PRIVATE_REG}/main-s7"
 	docker build --pull \
 				 --build-arg BASE_CONTAINER="${PRIVATE_REG}/main-s7" \
-				 -t "${PRIVATE_REG}/main-s8" -f deploy/Dockerfile .
-	docker push "${PRIVATE_REG}/main-s8"
+				 -t "${PRIVATE_REG}/main:${VERSION}" -f classic/Dockerfile .
+	docker push "${PRIVATE_REG}/main:${VERSION}"
+	cd DIVE-deploy; \
+	docker build --pull \
+				 --build-arg BASE_CONTAINER="${PRIVATE_REG}/main:${VERSION}" \
+				 -t "${PRIVATE_REG}/main-deploy:${VERSION}" -f Dockerfile .
+	docker push "${PRIVATE_REG}/main-deploy:${VERSION}"

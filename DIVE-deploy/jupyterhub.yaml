@@ -1,0 +1,246 @@
+hub:
+  image: 
+    name: localhost:32000/hub
+    tag: 1.1.0ar3
+  allowNamedServers: true
+  networkPolicy:
+    allowedIngressPorts:
+      - 8081
+      - 9999
+  service:
+    extraPorts:
+      - name: shared-notebook
+        protocol: TCP
+        port: 9999
+        targetPort: 9999
+  config:
+    Authenticator:
+      admin_users:
+        - ccha23
+        - ccha23@gapps.cityu.edu.hk
+        - atrixtang
+        - yozhch@gmail.com
+        - wangxucoco@gmail.com
+        - qihaliang2@gapps.cityu.edu.hk
+    JupyterHub:
+      admin_access: true
+      authenticator_class: pam
+  extraConfig:
+    01-custom-attr: |
+      import sqlite3
+      import subprocess
+      from shlex import quote
+      from traitlets import List
+      from jupyterhub.utils import maybe_future
+      from jupyterhub.auth import Authenticator
+      from jupyterhub.auth import PAMAuthenticator
+      from oauthenticator.github import GitHubOAuthenticator
+      from oauthenticator.google import GoogleOAuthenticator
+
+      def db_user_exists(user):
+        con = sqlite3.connect('/srv/jupyterhub/jupyterhub.sqlite')
+        cur = con.cursor()
+        cur.execute("SELECT * FROM 'users' WHERE name=?", (str(user), ))
+        row = cur.fetchone()
+        con.close()
+        return row
+
+      class p(PAMAuthenticator):
+        priv = False
+        async def authenticate(self, handler, data):
+          user = await maybe_future(super().authenticate(handler, data))
+          if user == None:
+            return None
+
+          if self.priv:
+            if db_user_exists(user) == None:
+              return None
+          return user
+
+      class gi(GitHubOAuthenticator):
+        priv = True
+        async def authenticate(self, handler, data=None):
+          user = await super().authenticate(handler, data)
+          if user == None:
+            return None
+
+          if self.priv:
+            if db_user_exists(user["name"].lower()) == None:
+              return None
+          return user
+
+      class go(GoogleOAuthenticator):
+        priv = True
+        async def authenticate(self, handler, data=None, google_groups=None):
+          user = await super().authenticate(handler, data, google_groups)
+          if user == None:
+            return None
+          if self.priv:
+            if db_user_exists(user["name"].lower()) == None:
+              return None
+          return user
+
+      class a(PAMAuthenticator):
+        authenticators = List(config=True)
+        authenticators = [
+          (p, '/', {}),
+          (gi, '/github', {
+            'client_id': 'bba9ceb21739a4036752',
+            'client_secret': 'b2caee1c1dd27fb4feca53f5b80ed90cf2b84585',
+            'oauth_callback_url': 'https://dive.cs.cityu.edu.hk/hub/github/oauth_callback'
+          }),
+          (go, '/google', {
+            'client_id': '298417803824-oi0cu6i1kuh7mpdr2dfntknkb5udkbci.apps.googleusercontent.com',
+            'client_secret': 'FIIoGL385UmtniSyminQwmIr',
+            'oauth_callback_url': 'https://dive.cs.cityu.edu.hk/hub/google/oauth_callback'
+          })
+        ]
+
+        def __init__(self, *arg, **kwargs):
+          super().__init__(*arg, **kwargs)
+          self._authenticators = []
+          for auth_cls, url_scope, conf in self.authenticators:
+            c = self.trait_values()
+            c.update(conf)
+            self._authenticators.append({
+              'instance': auth_cls(**c),
+              'url_scope': url_scope
+            })
+
+        def get_handlers(self, app):
+          routes = []
+          for _authenticator in self._authenticators:
+            for path, handler in _authenticator['instance'].get_handlers(app):
+              class SubHandler(handler):
+                authenticator = _authenticator['instance']
+              routes.append((f'{_authenticator["url_scope"]}{path}', SubHandler))
+          return routes
+
+        def system_user_exists(self, user):
+          cmd = 'getent passwd {}'.format(quote(user.name))
+          try:
+            subprocess.check_output(cmd, shell=True).decode("utf-8").strip()
+          except subprocess.CalledProcessError as e:
+            return False
+          else:
+            return True
+
+        def pre_spawn_start(self, user, spawner):
+          tensorbroad_proxy = ""
+          if spawner.server:
+            env = spawner.server.base_url
+            tensorboard_proxy = env + "proxy/%PORT%/"
+          
+          # if user.name == 'ccha23@gapps.cityu.edu.hk':
+          #   spawner.cpu_limit = 12
+          #   spawner.mem_limit = '24G'
+          #   spawner.environment['gpu_memory'] = '15000'
+          
+          spawner.environment['TENSORBOARD_PROXY_URL'] = tensorboard_proxy
+
+      c.JupyterHub.authenticator_class = a
+    02-grader-nb: |
+      c.JupyterHub.load_groups = {
+        'formgrader': [
+          'atrixtang',
+          'ccha23',
+          'ccha23@gapps.cityu.edu.hk',
+          'yozhch@gmail.com',
+          'wangxucoco@gmail.com',
+          'qihaliang2@gapps.cityu.edu.hk',
+        ],
+      }
+
+      import os
+      c.JupyterHub.services = [
+        {
+          'name': 'formgrader-nb',
+          'url': 'http://hub:9999',
+          'command': [
+            '/usr/local/bin/jupyterhub-singleuser',
+            '--group=formgrader',
+            '--ip=0.0.0.0',
+            '--port=9999',
+          ],
+          'user': 'jovyan',
+          'cwd': '/home/jovyan'
+        }
+      ]
+    03-ngshare.py: |
+      c.JupyterHub.services.append({
+        'name': 'ngshare',
+        'url': 'http://ngshare-1629143514.jhub.svc.cluster.local:8080',
+        'api_token': '5114e3d3e587e69aabb1b468ad1cfa7a24affdb18acd46dbdc635120e3814aff'})
+    cds-handlers: |
+      from cdsdashboards.hubextension import cds_extra_handlers
+      c.JupyterHub.extra_handlers = cds_extra_handlers
+    cds-templates: |
+      from cdsdashboards.app import CDS_TEMPLATE_PATHS
+      c.JupyterHub.template_paths = CDS_TEMPLATE_PATHS
+    cds-kube: |
+      c.JupyterHub.spawner_class = 'cdsdashboards.hubextension.spawners.variablekube.VariableKubeSpawner'
+      c.CDSDashboardsConfig.builder_class = 'cdsdashboards.builder.kubebuilder.KubeBuilder'
+
+proxy:
+  https:
+    enabled: true
+    hosts:
+      - dive.cs.cityu.edu.hk
+    letsencrypt:
+      contactEmail: r.tang@my.cityu.edu.hk
+  service:
+    loadBalancerIP: 144.214.120.56
+
+singleuser:
+  defaultUrl: /lab
+  memory:
+    limit: 4G
+    guarantee: 2G
+  cpu:
+    limit: 2
+    guarantee: 0.25
+  profileList:
+  - default: true
+    display_name: CPU
+    description: |
+      Recommended for notebooks that do not require GPU.
+    kubespawner_override:
+      cmd: ['start-singleuser.sh', '--LabApp.collaborative=True']
+      image: localhost:32000/main-deploy:0.0.0
+  - display_name: 2G GPU Memory
+    kubespawner_override:
+      cmd: ['bf-start-singleuser.sh', '-n', '1', '-p', '0.125', '--', '--LabApp.collaborative=True']
+      image: localhost:32000/main-deploy:0.0.0
+  - display_name: 4G GPU Memory
+    kubespawner_override:
+      cmd: ['bf-start-singleuser.sh', '-n', '1', '-p', '0.25', '--', '--LabApp.collaborative=True']
+      image: localhost:32000/main-deploy:0.0.0
+  - display_name: 8G GPU Memory
+    kubespawner_override:
+      cmd: ['bf-start-singleuser.sh', '-n', '1', '-p', '0.5', '--', '--LabApp.collaborative=True']
+      image: localhost:32000/main-deploy:0.0.0
+  # - default: true
+  #   description: |
+  #     With GPU support.
+  #   display_name: GPU
+  #   kubespawner_override:
+  #     cmd:
+  #     - "sh"
+  #     - "-c"
+  #     - >
+  #       bitfusion run -n 1 -m $gpu_memory start-singleuser.sh
+  #     image: localhost:32000/notebook:1.1.1b
+  # - description: |
+  #     No GPU support.
+  #   display_name: No GPU
+  #   kubespawner_override:
+  #     image: localhost:32000/notebook:1.1.1b
+  # - description: |
+  #     Minimal notebook environment. Uses jupyterhub/minimal-notebook
+  #   display_name: Minimal
+  #   kubespawner_override:
+  #     image: jupyter/minimal-notebook:hub-1.4.2
+  storage:
+    capacity: 10Gi
+  extraEnv:
+    gpu_memory: '4096'

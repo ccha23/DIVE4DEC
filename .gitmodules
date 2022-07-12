@@ -28,3 +28,6 @@
 [submodule "dimagic"]
 	path = dimagic
 	url = https://github.com/ccha23/dimagic
+[submodule "jupyter_contrib_nbextensions"]
+	path = jupyter_contrib_nbextensions
+	url = https://github.com/ccha23/jupyter_contrib_nbextensions.git

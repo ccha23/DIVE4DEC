@@ -86,3 +86,6 @@ RUN conda install --quiet --yes \
     && \
     conda clean --all -f -y && \
     fix-permissions "${CONDA_DIR}"
+
+# R
+RUN R -e "IRkernel::installspec(sys_prefix = TRUE)"

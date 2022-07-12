@@ -33,7 +33,7 @@ USER ${NB_USER}
 
 # Javascript and Typescript
 RUN npm install -g tslab && \
-    tslab install \
+    tslab install --sys-prefix \
     && \
     fix-permissions "${CONDA_DIR}"   
 

@@ -4,6 +4,25 @@ FROM ${BASE_CONTAINER}
 
 USER root
 
+### Desktop ###
+RUN wget -q "https://sourceforge.net/projects/turbovnc/files/3.0/turbovnc_3.0_amd64.deb/download" \
+    -O /tmp/turbovnc_3.0_amd64.deb && \
+    apt-get update --yes && \
+    apt-get install --yes --no-install-recommends \
+    /tmp/turbovnc_3.0_amd64.deb \
+    gnupg \
+    xorg \
+    xfce4 \
+    xfce4-panel \
+    xfce4-session \
+    xfce4-settings \
+    xfce4-terminal \
+    && \
+    apt-get remove -y -q light-locker libllvm11 && \
+    rm /tmp/turbovnc_3.0_amd64.deb && \
+    ln -s /opt/TurboVNC/bin/* /usr/local/bin/ && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
 ### code-server ###
 RUN apt-get update --yes && \
     apt-get install --yes --no-install-recommends \
@@ -23,9 +42,12 @@ RUN cat /etc/skel/.bashrc >> /etc/bash.bashrc
 
 USER ${NB_UID}
 
-### Code server
+### Code server and Remote Desktop
 RUN mamba install --quiet --yes \
     'jupyter-vscode-proxy=0.1.*' \
+    && \
+    pip install --quiet --no-cache-dir \
+    'jupyter-desktop-server==0.1.*' \
     && \
     mamba clean --all -f -y && \
     fix-permissions "${CONDA_DIR}"
@@ -54,15 +76,6 @@ RUN mamba install --quiet --yes \
     && \
     pip install --quiet --no-cache-dir \
     'jupyterlab_sublime==0.4.*' \
-    # && \
-    # jlpm add --dev \
-    # bash-language-server \
-    # vscode-css-languageserver-bin \
-    # dockerfile-language-server-nodejs \
-    # vscode-html-languageserver-bin \
-    # javascript-typescript-langserver \
-    # vscode-json-languageserver-bin \
-    # yaml-language-server \
     && \
     mamba clean --all -f -y && \
     fix-permissions "${CONDA_DIR}" 
@@ -99,10 +112,10 @@ RUN cd /tmp/jsxgraph-magic && \
     rm -rf /tmp/jsxgraph-magic
 
 # markdown-it
-RUN mamba install --quiet --yes \
-    'yarn=1.22.*' && \
-    fix-permissions "${CONDA_DIR}" && \
-    mamba clean --all -f -y
+# RUN mamba install --quiet --yes \
+#     'yarn=1.22.*' && \
+#     fix-permissions "${CONDA_DIR}" && \
+#     mamba clean --all -f -y
 
 COPY --chown=${NB_UID}:${NB_GID} jupyterlab-markdownit/ /tmp/jupyterlab-markdownit/
 
@@ -158,6 +171,10 @@ RUN cd /tmp/jupyterlab-markdownit && \
 COPY --chown=${NB_USER}:${NB_GID} jupyter-interface/condarc "${CONDA_DIR}/.condarc"
 
 USER ${NB_USER}
+
+# Remote desktop customization
+COPY --chown=${NB_USER}:${NB_GID} jupyter-interface/jupyter_desktop_init.py /tmp/
+RUN mv /tmp/jupyter_desktop_init.py "$(pip show jupyter-desktop-server | grep Location | awk '{print $2}')/jupyter_desktop/__init__.py"
 
 WORKDIR "${HOME}"
 
