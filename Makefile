@@ -2,7 +2,12 @@ PRIVATE_REG=localhost:32000
 PUBLIC_REG=chungc
 VERSION=0.0.0
 
-.PHONY: jsxgraph-mathjax3 scipy-notebook-nv remote-display jupyter-interface programming tex math datamining grading deploy classic
+.PHONY: divewidgets jsxgraph-mathjax3 scipy-notebook-nv remote-display jupyter-interface programming tex math datamining grading deploy classic main
+
+divewidgets:
+	cd divewidgets; \
+	docker build --pull \
+				 -t "${PRIVATE_REG}/divewidgets" .
 
 jsxgraph-mathjax3:
 	docker build --pull \
