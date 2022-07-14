@@ -7,7 +7,7 @@ VERSION=0.0.0
 divewidgets:
 	cd divewidgets; \
 	docker build --pull \
-				 -t "${PRIVATE_REG}/divewidgets" .
+				 -t "${PRIVATE_REG}/divewidgets" -f Dockerfile .
 
 jsxgraph-mathjax3:
 	docker build --pull \

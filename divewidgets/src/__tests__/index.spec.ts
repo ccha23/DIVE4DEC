@@ -6,21 +6,21 @@
 
 import { createTestModel } from './utils';
 
-import { ExampleModel } from '..';
+import { JSXGraphModel } from '..';
 
-describe('Example', () => {
-  describe('ExampleModel', () => {
+describe('JSXGraph', () => {
+  describe('JSXGraphModel', () => {
     it('should be createable', () => {
-      const model = createTestModel(ExampleModel);
-      expect(model).toBeInstanceOf(ExampleModel);
-      expect(model.get('value')).toEqual('Hello World');
+      const model = createTestModel(JSXGraphModel);
+      expect(model).toBeInstanceOf(JSXGraphModel);
+      expect(model.get('id')).toEqual('box');
     });
 
     it('should be createable with a value', () => {
-      const state = { value: 'Foo Bar!' };
-      const model = createTestModel(ExampleModel, state);
-      expect(model).toBeInstanceOf(ExampleModel);
-      expect(model.get('value')).toEqual('Foo Bar!');
+      const state = { id: 'jxgbox' };
+      const model = createTestModel(JSXGraphModel, state);
+      expect(model).toBeInstanceOf(JSXGraphModel);
+      expect(model.get('id')).toEqual('jxgbox');
     });
   });
 });

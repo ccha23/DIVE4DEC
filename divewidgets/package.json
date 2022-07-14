@@ -1,6 +1,6 @@
 {
   "name": "jupyter-divewidgets",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Jupyter Widgets for DIVE virtual learning environment.",
   "keywords": [
     "jupyter",
@@ -29,12 +29,13 @@
     "url": "https://github.com/DIVE/divewidgets"
   },
   "scripts": {
-    "build": "jlpm run build:lib && jlpm run build:nbextension && jlpm run build:labextension:dev",
+    "build": "jlpm run build:lib && jlpm run build:nbextension:dev && jlpm run build:labextension:dev",
     "build:prod": "jlpm run build:lib && jlpm run build:nbextension && jlpm run build:labextension",
     "build:labextension": "jupyter labextension build .",
     "build:labextension:dev": "jupyter labextension build --development True .",
     "build:lib": "tsc",
-    "build:nbextension": "webpack",
+    "build:nbextension": "webpack --mode=production",
+    "build:nbextension:dev": "webpack --mode=development",
     "clean": "jlpm run clean:lib && jlpm run clean:nbextension && jlpm run clean:labextension",
     "clean:lib": "rimraf lib",
     "clean:labextension": "rimraf divewidgets/labextension",

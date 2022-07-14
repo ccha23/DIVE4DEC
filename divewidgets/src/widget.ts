@@ -22,7 +22,8 @@ export class JSXGraphModel extends DOMWidgetModel {
       _model_module: MODULE_NAME,
       _model_module_version: MODULE_VERSION,
       _view_module: MODULE_NAME,
-      _view_module_version: MODULE_VERSION
+      _view_module_version: MODULE_VERSION,
+      id: 'box'
     }
   }
 
