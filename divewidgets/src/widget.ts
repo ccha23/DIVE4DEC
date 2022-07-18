@@ -57,6 +57,7 @@ export class JSXGraphView extends DOMWidgetView {
     this._JSXGraphOutput = document.createElement('iframe');
     this._JSXGraphOutput.style.border = 'none';
     this._JSXGraphOutput.width = this.model.get('width');
+    this._JSXGraphOutput.style.maxWidth = "100%";
     this._JSXGraphOutput.height = this.model.get('height');
     this._JSXGraphOutput.style.resize = 'both';
     this.model.widget_manager.resolveUrl(this.model.get('mathjax_url')).then(
@@ -66,12 +67,13 @@ export class JSXGraphView extends DOMWidgetView {
       }
     );
 
-
     this.el.appendChild(this._JSXGraphOutput);
     this.el.appendChild(this._JSXGraphInputControl);
     this.el.appendChild(this._JSXGraphInput);
-    this.model.on('change:code', this._setInput, this);
-    this.model.on('change:code', this._setOutput, this);
+    this._JSXGraphOutput.onload = (function (this: JSXGraphView) {
+      this.model.on('change:code', this._setInput, this);
+      this.model.on('change:code', this._setOutput, this);  
+    }).bind(this);
   }
 
   private _setOutput() {
