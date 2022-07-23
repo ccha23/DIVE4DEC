@@ -12,6 +12,10 @@ import { MODULE_NAME, MODULE_VERSION } from './version';
 // Import the CSS
 import '../css/widget.css';
 
+// Codemirror
+import {EditorView, basicSetup} from "codemirror"
+import {keymap} from "@codemirror/view"
+import {javascript} from "@codemirror/lang-javascript"
 
 export class JSXGraphModel extends DOMWidgetModel {
   defaults() {
@@ -34,32 +38,56 @@ export class JSXGraphModel extends DOMWidgetModel {
 }
 
 export class JSXGraphView extends DOMWidgetView {
-  private _JSXGraphInput: HTMLTextAreaElement;
-  private _JSXGraphOutput: HTMLIFrameElement;
-  private _JSXGraphInputControl: HTMLDivElement;
-  private _JSXGraphShowButton: HTMLButtonElement;
+  private editorContainer: HTMLDivElement;
+  private outputContainer: HTMLIFrameElement;
+  private controlContainer: HTMLDivElement;
+  private showBtn: HTMLButtonElement;
+  private runBtn: HTMLButtonElement;
   private mathjaxURL: string;
+  private editorView: EditorView;
 
   render() {
-    this._JSXGraphInput = document.createElement('textarea');
-    this._JSXGraphInput.cols = 79;
-    this._JSXGraphInput.rows = 5;
-    this._JSXGraphInput.value = this.model.get('code');
-    this._JSXGraphInput.style.display = 'none';
-    this._JSXGraphInput.onchange = this._inputChanged.bind(this);
+    this.editorContainer = document.createElement('div');
+    this.editorContainer.style.display = 'none';
+    this.editorView = new EditorView({
+      extensions: [basicSetup, keymap.of([
+        {
+          key: "Ctrl-Enter", run: (() => {
+            this.runCode()
+            return true;
+          }).bind(this)
+        },
+        {
+          key: "Shift-Enter", run: (() => {
+            this.runCode()
+            return true;
+          }).bind(this)
+        }
+      ]
+      ), javascript()],
+      parent: this.editorContainer,
+    });
+    this.editorView.dispatch({changes: {from: 0, insert: this.model.get('code')}});
 
-    this._JSXGraphInputControl = document.createElement('div');
-    this._JSXGraphShowButton = document.createElement('button');
-    this._JSXGraphShowButton.innerText = 'show code';
-    this._JSXGraphShowButton.onclick = this._toggleShowButton.bind(this);
-    this._JSXGraphInputControl.appendChild(this._JSXGraphShowButton);
+    this.controlContainer = document.createElement('div');
+    this.controlContainer.style.display = 'flex';
+    this.showBtn = document.createElement('button');
+    this.showBtn.innerText = 'show code';
+    this.showBtn.onclick = this.toggleCode.bind(this);
+    this.runBtn = document.createElement('button');
+    this.runBtn.innerText = 'run code';
+    this.runBtn.onclick = this.runCode.bind(this);
+    this.runBtn.style.display = 'none';
 
-    this._JSXGraphOutput = document.createElement('iframe');
-    this._JSXGraphOutput.style.border = 'none';
-    this._JSXGraphOutput.width = this.model.get('width');
-    this._JSXGraphOutput.style.maxWidth = "100%";
-    this._JSXGraphOutput.height = this.model.get('height');
-    this._JSXGraphOutput.style.resize = 'both';
+    this.controlContainer.appendChild(this.showBtn);
+    this.controlContainer.appendChild(this.runBtn);
+
+    this.outputContainer = document.createElement('iframe');
+    this.outputContainer.style.border = 'none';
+    this.outputContainer.width = this.model.get('width');
+    this.outputContainer.style.maxWidth = "100%";
+    this.outputContainer.height = this.model.get('height');
+    this.outputContainer.style.resize = 'both';
     this.model.widget_manager.resolveUrl(this.model.get('mathjax_url')).then(
       url => {
         this.mathjaxURL = url;
@@ -67,17 +95,17 @@ export class JSXGraphView extends DOMWidgetView {
       }
     );
 
-    this.el.appendChild(this._JSXGraphOutput);
-    this.el.appendChild(this._JSXGraphInputControl);
-    this.el.appendChild(this._JSXGraphInput);
-    this._JSXGraphOutput.onload = (function (this: JSXGraphView) {
-      this.model.on('change:code', this._setInput, this);
+    this.el.appendChild(this.outputContainer);
+    this.el.appendChild(this.controlContainer);
+    this.el.appendChild(this.editorContainer);
+
+    this.outputContainer.onload = (function (this: JSXGraphView) {
       this.model.on('change:code', this._setOutput, this);  
     }).bind(this);
   }
 
   private _setOutput() {
-    this._JSXGraphOutput.srcdoc = `<!DOCTYPE html>
+    this.outputContainer.srcdoc = `<!DOCTYPE html>
     <html>
       <head>
         <style>
@@ -107,23 +135,21 @@ export class JSXGraphView extends DOMWidgetView {
     </html>`;
   }
 
-  private _setInput() {
-    this._JSXGraphInput.value = this.model.get('code');
+  private toggleCode() {
+    if (this.editorContainer.style.display == 'block') {
+      this.showBtn.innerText = 'show code';
+      this.editorContainer.style.display = 'none';
+      this.runBtn.style.display = 'none';
+    } else {
+      this.showBtn.innerText = 'hide code';
+      this.editorContainer.style.display = 'block';
+      this.runBtn.style.display = 'block';
+    }
   }
 
-  private _inputChanged() {
-    const code = this._JSXGraphInput.value;
+  private runCode() {
+    const code = this.editorView.state.doc.toString();
     this.model.set('code', code);
     this.model.save_changes();
-  }
-
-  private _toggleShowButton() {
-    if (this._JSXGraphInput.style.display=='block') {
-      this._JSXGraphShowButton.innerText = 'show code';
-      this._JSXGraphInput.style.display = 'none';
-    } else {
-      this._JSXGraphShowButton.innerText = 'hide code';
-      this._JSXGraphInput.style.display = 'block';
-    }
   }
 }
