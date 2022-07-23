@@ -29,4 +29,4 @@ class DIVEMagics(Magics):
     @cell_magic
     def jsxgraph(self, line, cell):
         opts = parse_argstring(self.jsxgraph, line)
-        return JSXGraph(code=cell, height=opts.height, width=opts.width, id=opts.id, mathjax_url=opts.mathjax_url)
+        return JSXGraph(code=cell.strip(), height=opts.height, width=opts.width, id=opts.id, mathjax_url=opts.mathjax_url)
