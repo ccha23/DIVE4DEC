@@ -40,6 +40,8 @@ export class JSXGraphModel extends DOMWidgetModel {
 export class JSXGraphView extends DOMWidgetView {
   private editorContainer: HTMLDivElement;
   private outputContainer: HTMLIFrameElement;
+  private outputDocument: Document;
+  private codeScript: HTMLScriptElement;
   private controlContainer: HTMLDivElement;
   private showBtn: HTMLButtonElement;
   private runBtn: HTMLButtonElement;
@@ -49,16 +51,11 @@ export class JSXGraphView extends DOMWidgetView {
   render() {
     this.editorContainer = document.createElement('div');
     this.editorContainer.style.display = 'none';
+    this.editorContainer.style.overflowX = 'auto';
     this.editorView = new EditorView({
       extensions: [basicSetup, keymap.of([
         {
           key: "Ctrl-Enter", run: (() => {
-            this.runCode()
-            return true;
-          }).bind(this)
-        },
-        {
-          key: "Shift-Enter", run: (() => {
             this.runCode()
             return true;
           }).bind(this)
@@ -100,8 +97,22 @@ export class JSXGraphView extends DOMWidgetView {
     this.el.appendChild(this.editorContainer);
 
     this.outputContainer.onload = (function (this: JSXGraphView) {
-      this.model.on('change:code', this._setOutput, this);  
+      this.outputDocument = this.outputContainer.contentDocument!;
+      this.codeScript = this.outputDocument!.createElement('script');
+      this.outputDocument.body.appendChild(this.codeScript);
+      this.setCode();
+      this.model.on('change:code', this.setCode, this);
     }).bind(this);
+  }
+
+  /*
+  Update the script element in the output container with the model code.
+  */
+  private setCode() {
+    let script = this.outputDocument.createElement('script');
+    script.innerHTML = this.model.get('code');
+    this.outputDocument.body.replaceChild(script, this.codeScript);
+    this.codeScript = script;
   }
 
   private _setOutput() {
@@ -128,9 +139,6 @@ export class JSXGraphView extends DOMWidgetView {
       </head>
     <body>
     <div id="${this.model.get('id')}" class="jxgbox"></div>
-    <script type="text/javascript">
-    ${this.model.get('code')}
-    </script>
     </body>
     </html>`;
   }
