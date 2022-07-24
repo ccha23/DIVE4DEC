@@ -14,8 +14,12 @@ import '../css/widget.css';
 
 // Codemirror
 import {EditorView, basicSetup} from "codemirror"
-import {keymap} from "@codemirror/view"
+// import {EditorView} from "codemirror"
+// import {editorSetup} from "./editorsetup"
+
+// import {keymap} from "@codemirror/view"
 import {javascript} from "@codemirror/lang-javascript"
+
 
 export class JSXGraphModel extends DOMWidgetModel {
   defaults() {
@@ -53,15 +57,17 @@ export class JSXGraphView extends DOMWidgetView {
     this.editorContainer.style.display = 'none';
     this.editorContainer.style.overflowX = 'auto';
     this.editorView = new EditorView({
-      extensions: [basicSetup, keymap.of([
-        {
-          key: "Ctrl-Enter", run: (() => {
-            this.runCode()
-            return true;
-          }).bind(this)
-        }
-      ]
-      ), javascript()],
+      extensions: [basicSetup, 
+      //   keymap.of([
+      //   {
+      //     key: "Ctrl-Enter", run: (() => {
+      //       this.runCode()
+      //       return true;
+      //     }).bind(this)
+      //   }
+      // ]
+      // ), 
+      javascript()],
       parent: this.editorContainer,
     });
     this.editorView.dispatch({changes: {from: 0, insert: this.model.get('code')}});
