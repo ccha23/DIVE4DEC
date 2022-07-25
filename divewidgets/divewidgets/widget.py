@@ -22,7 +22,7 @@ class DIVEWidget(DOMWidget, ValueWidget):
     _view_name = Unicode('DIVEWidgetView').tag(sync=True)
     _view_module = Unicode(module_name).tag(sync=True)
     _view_module_version = Unicode(module_version).tag(sync=True)
-    code = Unicode('// some code here').tag(sync=True)
+    js = Unicode('// some code here').tag(sync=True)
     html = Unicode('<!-- some code here -->').tag(sync=True)
     height = Int(600).tag(sync=True);
     width = Int(600).tag(sync=True);
@@ -53,4 +53,4 @@ def create_JSXGraph(id='box', code='const board = JXG.JSXGraph.initBoard("box", 
 <div id="''' + id + r'''" class="jxgbox"></div>
 </body>
 </html>'''
-    return DIVEWidget(code=code, html=html, height=height, width=width)
+    return DIVEWidget(js=code, html=html, height=height, width=width)

@@ -1,6 +1,6 @@
 {
   "name": "jupyter-divewidgets",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Jupyter Widgets for DIVE virtual learning environment.",
   "keywords": [
     "jupyter",
@@ -50,10 +50,16 @@
     "watch:labextension": "jupyter labextension watch ."
   },
   "dependencies": {
+    "@codemirror/autocomplete": "^6.1.0",
+    "@codemirror/commands": "^6.0.1",
     "@codemirror/lang-html": "^6.1.0",
     "@codemirror/lang-javascript": "^6.0.2",
-    "@jupyter-widgets/base": "^1.1.10 || ^2.0.0 || ^3.0.0 || ^4.0.0",
-    "codemirror": "^6.0.1"
+    "@codemirror/language": "^6.2.1",
+    "@codemirror/lint": "^6.0.0",
+    "@codemirror/search": "^6.0.1",
+    "@codemirror/state": "^6.1.0",
+    "@codemirror/view": "^6.1.1",
+    "@jupyter-widgets/base": "^1.1.10 || ^2.0.0 || ^3.0.0 || ^4.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.5.0",

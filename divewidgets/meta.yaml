@@ -1,6 +1,6 @@
 {% set data = load_setup_py_data() %}
 {% set name = "divewidgets" %}
-{% set version = data['version'] %}
+{% set version = "0.1.2" %}
 
 package:
   name: "{{ name|lower }}"
