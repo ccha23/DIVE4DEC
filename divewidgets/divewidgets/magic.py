@@ -4,7 +4,7 @@ from IPython.core.magic_arguments import (argument, magic_arguments,
                                           parse_argstring)
 from IPython.display import Javascript, display
 
-from .widget import JSXGraph
+from .widget import create_JSXGraph
 
 @magics_class
 class DIVEMagics(Magics):
@@ -29,4 +29,5 @@ class DIVEMagics(Magics):
     @cell_magic
     def jsxgraph(self, line, cell):
         opts = parse_argstring(self.jsxgraph, line)
-        return JSXGraph(code=cell.strip(), height=opts.height, width=opts.width, id=opts.id, mathjax_url=opts.mathjax_url)
+        # return JSXGraph(code=cell.strip(), height=opts.height, width=opts.width, id=opts.id, mathjax_url=opts.mathjax_url)
+        return create_JSXGraph(code=cell.strip(), height=opts.height, width=opts.width, id=opts.id, mathjax_url=opts.mathjax_url)

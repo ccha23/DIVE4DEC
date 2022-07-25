@@ -1,4 +1,32 @@
-.custom-widget {
-  background-color: lightseagreen;
-  padding: 0px 2px;
+.tab-container {
+  display: none;
+  flex-direction: row;
+  overflow: hidden;
+}
+
+.tab-container > div {
+  padding: 6px 6px;
+  margin: 2px;
+  background-color:aliceblue;
+  display: block; 
+  overflow: hidden;
+  border: none;
+}
+
+.tab-container > div.active-tab {
+  background-color:bisque;
+}
+
+.output-container {
+  resize: both;
+  overflow: auto;
+  max-width: 100%;
+  border: none;
+}
+
+.editor-container {
+  resize: horizontal;
+  overflow: auto;
+  max-width: 100%;
+  border: none;
 }

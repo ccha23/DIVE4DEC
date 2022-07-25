@@ -6,21 +6,20 @@
 
 import { createTestModel } from './utils';
 
-import { JSXGraphModel } from '..';
+import { DIVEWidgetModel } from '..';
 
-describe('JSXGraph', () => {
-  describe('JSXGraphModel', () => {
+describe('DIVEWidget', () => {
+  describe('DIVEWidgetModel', () => {
     it('should be createable', () => {
-      const model = createTestModel(JSXGraphModel);
-      expect(model).toBeInstanceOf(JSXGraphModel);
-      expect(model.get('id')).toEqual('box');
+      const model = createTestModel(DIVEWidgetModel);
+      expect(model).toBeInstanceOf(DIVEWidgetModel);
     });
 
     it('should be createable with a value', () => {
-      const state = { id: 'jxgbox' };
-      const model = createTestModel(JSXGraphModel, state);
-      expect(model).toBeInstanceOf(JSXGraphModel);
-      expect(model.get('id')).toEqual('jxgbox');
+      const state = { html: '<h1>hello</h1>' };
+      const model = createTestModel(DIVEWidgetModel, state);
+      expect(model).toBeInstanceOf(DIVEWidgetModel);
+      expect(model.get('html')).toEqual('<h1>hello</h1>');
     });
   });
 });
