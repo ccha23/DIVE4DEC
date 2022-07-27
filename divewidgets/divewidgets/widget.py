@@ -53,8 +53,8 @@ class DIVEWidget(DOMWidget, ValueWidget):
     _view_module_version = Unicode(module_version).tag(sync=True)
     js = Unicode('// some code here').tag(sync=True)
     html = Unicode('<!-- some code here -->').tag(sync=True)
-    height = Int(600).tag(sync=True);
-    width = Int(600).tag(sync=True);
+    height = Int(-1).tag(sync=True);
+    width = Int(-1).tag(sync=True);
 
 def create_JSXGraph(id='box', 
     code='const board = JXG.JSXGraph.initBoard("box", { boundingbox: [-5, 5, 5, -5], axis:true });', 
@@ -101,6 +101,16 @@ B --> D[d]"""):
 <html>
 <head>
   <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <style>
+        body {
+            padding: 0;
+            margin: 0;
+        }        
+        .mermaid > svg {
+          max-width:100%;
+          height: auto;
+        }
+    </style>
 </head>
 <body>
     <div class="mermaid">
@@ -136,6 +146,16 @@ cond8(yes)->sub12"""):
 <head>
   <script src="http://cdnjs.cloudflare.com/ajax/libs/raphael/2.3.0/raphael.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/flowchart/1.17.1/flowchart.min.js"></script>
+    <style>
+        body {
+            padding: 0;
+            margin: 0;
+        }
+        #diagram > svg {
+          max-width:100%;
+          height: auto;
+        }
+    </style>
 </head>
 <body>
     <div id="diagram">

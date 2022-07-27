@@ -52,7 +52,8 @@ export class DIVEWidgetView extends DOMWidgetView {
   private editorContainer: HTMLDivElement;
   private jsContainer: HTMLDivElement;
   private htmlContainer: HTMLDivElement;
-  private outputContainer: HTMLIFrameElement;
+  private outputContainer: HTMLDivElement;
+  private outputIFrame: HTMLIFrameElement;
   private outputDocument: Document;
   private jsScript: HTMLScriptElement;
   private controlContainer: HTMLDivElement;
@@ -184,10 +185,12 @@ export class DIVEWidgetView extends DOMWidgetView {
     this.controlContainer.appendChild(this.showBtn);
     this.controlContainer.appendChild(this.runBtn);
 
-    this.outputContainer = document.createElement('iframe');
+    this.outputContainer = document.createElement('div');
     this.outputContainer.className = "output-container";
-    this.outputContainer.width = this.model.get('width');
-    this.outputContainer.height = this.model.get('height');
+    this.outputIFrame = document.createElement('iframe');
+    this.outputIFrame.height = "100%";
+    this.outputIFrame.width = "100%";
+    this.outputContainer.appendChild(this.outputIFrame);
     this.setHtml();
 
     this.widgetContainer = document.createElement('div');
@@ -212,10 +215,10 @@ export class DIVEWidgetView extends DOMWidgetView {
   Update the html in the output container with the model html.
   */
   private setHtml() {
-    this.outputContainer.srcdoc = this.model.get('html');
+    this.outputIFrame.srcdoc = this.model.get('html');
 
-    this.outputContainer.onload = (function (this: DIVEWidgetView) {
-      this.outputDocument = this.outputContainer.contentDocument!;
+    this.outputIFrame.onload = (function (this: DIVEWidgetView) {
+      this.outputDocument = this.outputIFrame.contentDocument!;
       this.jsScript = this.outputDocument!.createElement('script');
       this.outputDocument.body.appendChild(this.jsScript);
       this.setJs();
@@ -234,8 +237,8 @@ export class DIVEWidgetView extends DOMWidgetView {
     })();`;
     this.outputDocument.body.replaceChild(script, this.jsScript);
     this.jsScript = script;
-    this.outputContainer.height = (20 + this.outputDocument.body.scrollHeight) + 'px';
-    this.outputContainer.width = (20 + this.outputDocument.body.scrollWidth) + 'px';
+    this.outputContainer.style.height = (this.model.get('height')<0 ? this.outputDocument.body.scrollHeight : this.model.get('height')) + 'px';
+    this.outputContainer.style.width = (this.model.get('width')<0 ? this.outputDocument.body.scrollWidth : this.model.get('width')) + 'px';
   }
 
   private toggleCode() {

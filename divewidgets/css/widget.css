@@ -6,8 +6,13 @@
 
 .output-container {
   resize: both;
-  overflow: auto;
+  overflow: hidden;
   max-width: 100%;
+  border: none;
+  padding: 0;
+}
+
+.output-container > iframe {
   border: none;
 }
 
