@@ -54,3 +54,66 @@ def create_JSXGraph(id='box', code='const board = JXG.JSXGraph.initBoard("box", 
 </body>
 </html>'''
     return DIVEWidget(js=code, html=html, height=height, width=width)
+
+
+def create_mermaid(code="""
+graph TD 
+A[a] --> B[b] 
+B --> C[c] 
+B --> D[d]""", height=600, width=600):
+    js = r'''render(`
+'''+code+'''
+`);'''
+    html = r'''<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+</head>
+<body>
+    <div class="mermaid">
+    </div>
+    <script>mermaid.initialize({startOnLoad:false});
+    var render = (function () {
+      var element = document.querySelector('.mermaid');
+      var insertSvg = function(svgCode, bindFunctions) {
+        element.innerHTML = svgCode;
+      };
+      return (code) => {
+        mermaid.mermaidAPI.render('rendered-mermaid',code,insertSvg);
+      };    
+    })()
+    </script>
+</body>
+</html>'''
+    return DIVEWidget(js=js, html=html, height=height, width=width)
+
+
+def create_flowchart(code="""
+cond3=>condition: if (not input(1))
+cond8=>condition: if input(2)
+sub12=>subroutine: input(3)
+
+cond3(yes)->cond8
+cond8(yes)->sub12""", height=600, width=600):
+    js = r'''render(`
+'''+code+'''
+`);'''
+    html = r'''<!DOCTYPE html>
+<html>
+<head>
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/raphael/2.3.0/raphael.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/flowchart/1.17.1/flowchart.min.js"></script>
+</head>
+<body>
+    <div id="diagram">
+    </div>
+    <script>
+    var render = (function () {
+      return (code) => {
+        flowchart.parse(code).drawSVG('diagram');
+      };    
+    })()
+    </script>
+</body>
+</html>'''
+    return DIVEWidget(js=js, html=html, height=height, width=width)

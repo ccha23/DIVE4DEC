@@ -4,7 +4,7 @@
 import {
   DOMWidgetModel,
   DOMWidgetView,
-  ISerializers,
+  ISerializers
 } from '@jupyter-widgets/base';
 
 import { MODULE_NAME, MODULE_VERSION } from './version';
@@ -46,6 +46,8 @@ export class DIVEWidgetModel extends DOMWidgetModel {
 }
 
 export class DIVEWidgetView extends DOMWidgetView {
+  private testContainer: HTMLIFrameElement;
+
   private widgetContainer: HTMLDivElement;
   private tabContainer: HTMLDivElement;
   private jsTab: HTMLDivElement;
@@ -127,6 +129,29 @@ export class DIVEWidgetView extends DOMWidgetView {
     this.editorContainer.appendChild(this.jsContainer);
     this.editorContainer.appendChild(this.htmlContainer);
     
+    let tabindex = -1111;
+    let event_type = "keydown";
+    let capture_event = true;
+    let key_handler = (event: Event) => {
+      console.log(event);
+      // Need this (and useCapture in the listener) to prevent the keypress
+      // from propagating to the notebook or browser.
+      event.stopPropagation();
+      event.preventDefault();
+      // let new_event = new KeyboardEvent(event.type, event);
+      // event.p.dispatchEvent(new_event);
+    }
+    this.editorContainer.addEventListener('mouseenter', ((event: Event) => { 
+      document.addEventListener(event_type, key_handler, capture_event);
+      this.editorContainer.tabIndex = tabindex;
+      this.editorContainer.focus({preventScroll:true});
+      console.log(event); 
+    }).bind(this));
+    this.editorContainer.addEventListener('mouseleave', ((event: Event) => { 
+      document.removeEventListener(event_type, key_handler, capture_event);
+      this.editorContainer.removeAttribute("tabIndex");
+      this.editorContainer.blur(); 
+    }).bind(this));
 
     this.controlContainer = document.createElement('div');
     this.controlContainer.className = 'control-container';
@@ -147,8 +172,29 @@ export class DIVEWidgetView extends DOMWidgetView {
     this.outputContainer.className = "output-container";
     this.outputContainer.width = this.model.get('width');
     this.outputContainer.height = this.model.get('height');
-
     this.setHtml();
+
+    this.testContainer = document.createElement('iframe');
+    this.testContainer.className = "test-container";
+    this.testContainer.width = this.model.get('width');
+    this.testContainer.height = this.model.get('height');
+
+    this.testContainer.srcdoc = `<body></body>`;
+
+    this.testContainer.onload = (function (this: DIVEWidgetView) {
+      let testDocument = this.testContainer.contentDocument!;
+      let editorContainer = testDocument!.createElement('div');
+      testDocument.body.appendChild(editorContainer);
+      new EditorView({
+        state: EditorState.create({
+          doc: "hello",
+          extensions: [editorTheme, editorSetup, runKeys, javascript()]
+        }),
+        parent: editorContainer
+      });
+      this.testContainer.width  = testDocument.body.scrollWidth + "px";
+      this.testContainer.height = testDocument.body.scrollHeight + "px";
+    }).bind(this);
 
     this.widgetContainer = document.createElement('div');
     this.widgetContainer.className = "divewidget";
@@ -157,6 +203,8 @@ export class DIVEWidgetView extends DOMWidgetView {
     this.widgetContainer.appendChild(this.tabContainer);
     this.widgetContainer.appendChild(this.editorContainer);
     this.el.appendChild(this.widgetContainer);
+    this.el.appendChild(this.testContainer);
+
   }
 
   private run() {
