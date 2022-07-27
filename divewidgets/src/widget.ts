@@ -46,7 +46,6 @@ export class DIVEWidgetModel extends DOMWidgetModel {
 }
 
 export class DIVEWidgetView extends DOMWidgetView {
-  private testContainer: HTMLIFrameElement;
 
   private widgetContainer: HTMLDivElement;
   private tabContainer: HTMLDivElement;
@@ -71,7 +70,13 @@ export class DIVEWidgetView extends DOMWidgetView {
           key: "Ctrl-Enter", run: (() => {
             this.run()
             return true;
-          }).bind(this)
+          }).bind(this),
+      },
+      {
+        key: "Alt-Shift-Enter", run: (() => {
+          this.run()
+          return true;
+        }).bind(this),
       }
     ]);
 
@@ -103,12 +108,12 @@ export class DIVEWidgetView extends DOMWidgetView {
 
     this.jsView = new EditorView({
       state: EditorState.create({
-        doc: "",
+        doc: this.model.get('js'),
         extensions: [editorTheme, editorSetup, runKeys, javascript()]
       }),
       parent: this.jsContainer
     });
-    this.jsView.dispatch({changes: {from: 0, insert: this.model.get('js')}});
+    // this.jsView.dispatch({changes: {from: 0, insert: this.model.get('js')}});
 
     this.htmlContainer = document.createElement('div');
     this.htmlContainer.className = "html-container";
@@ -116,12 +121,12 @@ export class DIVEWidgetView extends DOMWidgetView {
 
     this.htmlView = new EditorView({
       state: EditorState.create({
-        doc: "",
+        doc: this.model.get('html'),
         extensions: [editorSetup, runKeys, html()]
       }),
       parent: this.htmlContainer
     });
-    this.htmlView.dispatch({changes: {from: 0, insert: this.model.get('html')}});
+    // this.htmlView.dispatch({changes: {from: 0, insert: this.model.get('html')}});
 
     this.editorContainer = document.createElement('div');
     this.editorContainer.style.display = 'none';
@@ -130,25 +135,42 @@ export class DIVEWidgetView extends DOMWidgetView {
     this.editorContainer.appendChild(this.htmlContainer);
     
     let tabindex = -1111;
-    let event_type = "keydown";
-    let capture_event = true;
-    let key_handler = (event: Event) => {
-      console.log(event);
-      // Need this (and useCapture in the listener) to prevent the keypress
-      // from propagating to the notebook or browser.
-      event.stopPropagation();
-      event.preventDefault();
-      // let new_event = new KeyboardEvent(event.type, event);
-      // event.p.dispatchEvent(new_event);
+    let key_handler = (event: KeyboardEvent) => {
+      // Similar to ipyevents, prevent some JupyterLab cell actions (undo/redo/run...) 
+      // by capturing the corresponding shortcut keys while mouse is over the editorContainer.
+      // Otherwise, codemirror will not be able to capture those keys for undo/redo/run...
+      if (
+        ((event.metaKey || event.ctrlKey) && !event.altKey && !event.shiftKey && event.code === "KeyZ") ||
+        ((event.metaKey || event.ctrlKey) && !event.altKey && !event.shiftKey && event.code === "KeyY") ||
+        ((event.metaKey || event.ctrlKey) && !event.altKey && event.shiftKey && event.code === "KeyZ") ||
+        (!event.metaKey && !event.ctrlKey && !event.altKey && event.shiftKey && event.code === "Enter") ||
+        (!event.metaKey && !event.ctrlKey && !event.altKey && event.code === "Tab")
+      )
+        {
+        event.stopImmediatePropagation();
+        event.preventDefault();
+        let new_event = new KeyboardEvent(event.type, {
+          altKey: true,
+          code: event.code,
+          ctrlKey: event.ctrlKey || event.code === "Tab",
+          isComposing: event.isComposing,
+          repeat: event.repeat,
+          metaKey: event.metaKey,
+          shiftKey: event.shiftKey,
+          key: event.key
+        });
+        console.log(new_event);
+        event.target!.dispatchEvent(new_event);
+      }
     }
     this.editorContainer.addEventListener('mouseenter', ((event: Event) => { 
-      document.addEventListener(event_type, key_handler, capture_event);
+      window.addEventListener("keydown", key_handler, true);
       this.editorContainer.tabIndex = tabindex;
       this.editorContainer.focus({preventScroll:true});
       console.log(event); 
     }).bind(this));
     this.editorContainer.addEventListener('mouseleave', ((event: Event) => { 
-      document.removeEventListener(event_type, key_handler, capture_event);
+      window.removeEventListener("keydown", key_handler, true);
       this.editorContainer.removeAttribute("tabIndex");
       this.editorContainer.blur(); 
     }).bind(this));
@@ -161,7 +183,7 @@ export class DIVEWidgetView extends DOMWidgetView {
     this.showBtn.onclick = this.toggleCode.bind(this);
     this.runBtn = document.createElement('button');
     this.runBtn.innerText = 'run code';
-    this.runBtn.title = 'Ctrl-Enter';
+    this.runBtn.title = 'Shift-Enter';
     this.runBtn.onclick = this.run.bind(this);
     this.runBtn.style.display = 'none';
 
@@ -174,28 +196,6 @@ export class DIVEWidgetView extends DOMWidgetView {
     this.outputContainer.height = this.model.get('height');
     this.setHtml();
 
-    this.testContainer = document.createElement('iframe');
-    this.testContainer.className = "test-container";
-    this.testContainer.width = this.model.get('width');
-    this.testContainer.height = this.model.get('height');
-
-    this.testContainer.srcdoc = `<body></body>`;
-
-    this.testContainer.onload = (function (this: DIVEWidgetView) {
-      let testDocument = this.testContainer.contentDocument!;
-      let editorContainer = testDocument!.createElement('div');
-      testDocument.body.appendChild(editorContainer);
-      new EditorView({
-        state: EditorState.create({
-          doc: "hello",
-          extensions: [editorTheme, editorSetup, runKeys, javascript()]
-        }),
-        parent: editorContainer
-      });
-      this.testContainer.width  = testDocument.body.scrollWidth + "px";
-      this.testContainer.height = testDocument.body.scrollHeight + "px";
-    }).bind(this);
-
     this.widgetContainer = document.createElement('div');
     this.widgetContainer.className = "divewidget";
     this.widgetContainer.appendChild(this.outputContainer);
@@ -203,7 +203,6 @@ export class DIVEWidgetView extends DOMWidgetView {
     this.widgetContainer.appendChild(this.tabContainer);
     this.widgetContainer.appendChild(this.editorContainer);
     this.el.appendChild(this.widgetContainer);
-    this.el.appendChild(this.testContainer);
 
   }
 
