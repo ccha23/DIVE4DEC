@@ -5,7 +5,24 @@
 # Distributed under the terms of the Modified BSD License.
 
 """
-TODO: Add module docstring
+Interactive widgets for DIVE virtual learning environment.
+
+%load_ext divewidgets
+
+E.g., to create a mermaid graph 
+%%mermaid
+graph TD 
+A[a] --> B[b] 
+B --> C[c] 
+B --> D[d]
+
+from divewidgets import create_mermaid
+create_mermaid(code='''
+graph TD 
+A[a] --> B[b] 
+B --> C[c] 
+B --> D[d]
+''')
 """
 
 from ipywidgets import DOMWidget, ValueWidget, register
@@ -14,7 +31,19 @@ from ._frontend import module_name, module_version
 
 @register
 class DIVEWidget(DOMWidget, ValueWidget):
-    """DIVEWidget Widget
+    """Renders an IFrame from editable Javascript and HTML.
+
+    Parameters
+    ----------
+    js: string
+        Javascript code.
+    html: string
+        HTML code. 
+
+    Returns
+    -------
+    Widget: html with js appended to the body. 
+        The html and js code can be edited and re-rendered.
     """
     _model_name = Unicode('DIVEWidgetModel').tag(sync=True)
     _model_module = Unicode(module_name).tag(sync=True)
@@ -27,7 +56,10 @@ class DIVEWidget(DOMWidget, ValueWidget):
     height = Int(600).tag(sync=True);
     width = Int(600).tag(sync=True);
 
-def create_JSXGraph(id='box', code='const board = JXG.JSXGraph.initBoard("box", { boundingbox: [-5, 5, 5, -5], axis:true });', mathjax_url='https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js', height=600, width=600):
+def create_JSXGraph(id='box', 
+    code='const board = JXG.JSXGraph.initBoard("box", { boundingbox: [-5, 5, 5, -5], axis:true });', 
+    mathjax_url='https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js', 
+    height=600, width=600):
     html = r'''<!DOCTYPE html>
 <html>
     <head>
@@ -36,6 +68,7 @@ def create_JSXGraph(id='box', code='const board = JXG.JSXGraph.initBoard("box", 
         height: 100%;
     }
     body {
+        width: 100%;
         display: flex;
         padding: 0;
         margin: 0;
@@ -60,7 +93,7 @@ def create_mermaid(code="""
 graph TD 
 A[a] --> B[b] 
 B --> C[c] 
-B --> D[d]""", height=600, width=600):
+B --> D[d]"""):
     js = r'''render(`
 '''+code+'''
 `);'''
@@ -85,7 +118,7 @@ B --> D[d]""", height=600, width=600):
     </script>
 </body>
 </html>'''
-    return DIVEWidget(js=js, html=html, height=height, width=width)
+    return DIVEWidget(js=js, html=html)
 
 
 def create_flowchart(code="""
@@ -94,7 +127,7 @@ cond8=>condition: if input(2)
 sub12=>subroutine: input(3)
 
 cond3(yes)->cond8
-cond8(yes)->sub12""", height=600, width=600):
+cond8(yes)->sub12"""):
     js = r'''render(`
 '''+code+'''
 `);'''
@@ -110,10 +143,11 @@ cond8(yes)->sub12""", height=600, width=600):
     <script>
     var render = (function () {
       return (code) => {
+        document.getElementById('diagram').innerHTML = '';
         flowchart.parse(code).drawSVG('diagram');
       };    
     })()
     </script>
 </body>
 </html>'''
-    return DIVEWidget(js=js, html=html, height=height, width=width)
+    return DIVEWidget(js=js, html=html)

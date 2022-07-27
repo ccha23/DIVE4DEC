@@ -6,6 +6,7 @@ import { history, defaultKeymap, historyKeymap, undo, redo, indentMore, indentLe
 import { highlightSelectionMatches, searchKeymap } from '@codemirror/search';
 import { closeBrackets, autocompletion, closeBracketsKeymap, completionKeymap } from '@codemirror/autocomplete';
 import { lintKeymap } from '@codemirror/lint';
+import {oneDark} from "@codemirror/theme-one-dark"
 
 const editorSetup:Extension = /*@__PURE__*/(() => [
     lineNumbers(),
@@ -40,7 +41,8 @@ const editorSetup:Extension = /*@__PURE__*/(() => [
         ...foldKeymap,
         ...completionKeymap,
         ...lintKeymap
-    ])
+    ]),
+    oneDark
 ])();
 
 export { editorSetup };

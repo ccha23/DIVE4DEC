@@ -58,6 +58,7 @@
     "@codemirror/lint": "^6.0.0",
     "@codemirror/search": "^6.0.1",
     "@codemirror/state": "^6.1.0",
+    "@codemirror/theme-one-dark": "^6.0.0",
     "@codemirror/view": "^6.1.1",
     "@jupyter-widgets/base": "^1.1.10 || ^2.0.0 || ^3.0.0 || ^4.0.0"
   },

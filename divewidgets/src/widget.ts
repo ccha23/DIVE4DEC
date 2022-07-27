@@ -15,8 +15,6 @@ import '../css/widget.css';
 // Codemirror
 import {EditorView, keymap} from "@codemirror/view"
 import {editorSetup} from "./editorsetup"
-import {editorTheme} from "./editortheme"
-
 import {EditorState} from "@codemirror/state"
 import {javascript} from "@codemirror/lang-javascript"
 import {html} from "@codemirror/lang-html"
@@ -109,11 +107,10 @@ export class DIVEWidgetView extends DOMWidgetView {
     this.jsView = new EditorView({
       state: EditorState.create({
         doc: this.model.get('js'),
-        extensions: [editorTheme, editorSetup, runKeys, javascript()]
+        extensions: [editorSetup, runKeys, javascript()]
       }),
       parent: this.jsContainer
     });
-    // this.jsView.dispatch({changes: {from: 0, insert: this.model.get('js')}});
 
     this.htmlContainer = document.createElement('div');
     this.htmlContainer.className = "html-container";
@@ -126,7 +123,6 @@ export class DIVEWidgetView extends DOMWidgetView {
       }),
       parent: this.htmlContainer
     });
-    // this.htmlView.dispatch({changes: {from: 0, insert: this.model.get('html')}});
 
     this.editorContainer = document.createElement('div');
     this.editorContainer.style.display = 'none';
@@ -159,7 +155,6 @@ export class DIVEWidgetView extends DOMWidgetView {
           shiftKey: event.shiftKey,
           key: event.key
         });
-        console.log(new_event);
         event.target!.dispatchEvent(new_event);
       }
     }
@@ -167,7 +162,6 @@ export class DIVEWidgetView extends DOMWidgetView {
       window.addEventListener("keydown", key_handler, true);
       this.editorContainer.tabIndex = tabindex;
       this.editorContainer.focus({preventScroll:true});
-      console.log(event); 
     }).bind(this));
     this.editorContainer.addEventListener('mouseleave', ((event: Event) => { 
       window.removeEventListener("keydown", key_handler, true);
@@ -179,7 +173,7 @@ export class DIVEWidgetView extends DOMWidgetView {
     this.controlContainer.className = 'control-container';
     this.controlContainer.style.display = 'flex';
     this.showBtn = document.createElement('button');
-    this.showBtn.innerText = 'show code';
+    this.showBtn.innerText = 'scratch';
     this.showBtn.onclick = this.toggleCode.bind(this);
     this.runBtn = document.createElement('button');
     this.runBtn.innerText = 'run code';
@@ -240,11 +234,13 @@ export class DIVEWidgetView extends DOMWidgetView {
     })();`;
     this.outputDocument.body.replaceChild(script, this.jsScript);
     this.jsScript = script;
+    this.outputContainer.height = (20 + this.outputDocument.body.scrollHeight) + 'px';
+    this.outputContainer.width = (20 + this.outputDocument.body.scrollWidth) + 'px';
   }
 
   private toggleCode() {
     if (this.editorContainer.style.display == 'block') {
-      this.showBtn.innerText = 'show code';
+      this.showBtn.innerText = 'scratch';
       this.tabContainer.style.display = 'none';
       this.editorContainer.style.display = 'none';
       this.runBtn.style.display = 'none';

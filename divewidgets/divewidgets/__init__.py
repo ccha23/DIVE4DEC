@@ -4,7 +4,7 @@
 # Copyright (c) Chung Chan.
 # Distributed under the terms of the Modified BSD License.
 from .magic import DIVEMagics
-from .widget import DIVEWidget
+from .widget import DIVEWidget, create_JSXGraph, create_mermaid, create_flowchart
 from ._version import __version__, version_info
 
 def load_ipython_extension(ipython):
