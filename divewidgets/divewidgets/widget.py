@@ -144,7 +144,7 @@ cond8(yes)->sub12"""):
     html = r'''<!DOCTYPE html>
 <html>
 <head>
-  <script src="http://cdnjs.cloudflare.com/ajax/libs/raphael/2.3.0/raphael.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/raphael/2.3.0/raphael.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/flowchart/1.17.1/flowchart.min.js"></script>
     <style>
         body {
