@@ -1,6 +1,6 @@
 {
   "name": "jupyter-divewidgets",
-  "version": "0.1.2",
+  "version": "0.1.4",
   "description": "Jupyter Widgets for DIVE virtual learning environment.",
   "keywords": [
     "jupyter",
