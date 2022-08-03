@@ -1,8 +1,8 @@
 PRIVATE_REG=localhost:32000
 PUBLIC_REG=chungc
-VERSION=0.0.0
+VERSION=0.0.1
 
-.PHONY: divewidgets jsxgraph-mathjax3 scipy-notebook-nv remote-display jupyter-interface programming tex math datamining grading deploy classic main
+.PHONY: divewidgets jsxgraph-mathjax3 scipy-nv remote-display jupyter-interface programming tex math datamining grading deploy classic main divedeep
 
 divewidgets:
 	cd divewidgets; \
@@ -13,7 +13,7 @@ jsxgraph-mathjax3:
 	docker build --pull \
 				 -t "${PRIVATE_REG}/jsxgraph-mathjax3" -f jsxgraph-mathjax3/Dockerfile .
 
-scipy-notebook-nv:
+scipy-nv:
 	docker build --pull \
 				 --build-arg ROOT_CONTAINER="nvidia/cuda:11.2.2-cudnn8-runtime-ubuntu20.04" \
 				 --build-arg PYTHON_VERSION="3.9" \
@@ -25,8 +25,8 @@ scipy-notebook-nv:
 	docker push "${PRIVATE_REG}/minimal-notebook-nv"
 	docker build --pull \
 			 	 --build-arg BASE_CONTAINER="${PRIVATE_REG}/minimal-notebook-nv" \
-				 -t "${PRIVATE_REG}/scipy-notebook-nv" docker-stacks/scipy-notebook
-	docker push "${PRIVATE_REG}/scipy-notebook-nv"
+				 -t "${PRIVATE_REG}/scipy-nv" docker-stacks/scipy-notebook
+	docker push "${PRIVATE_REG}/scipy-nv"
 
 remote-display:
 	docker build --pull \
@@ -68,7 +68,7 @@ deploy: scipy-nv
 
 main: scipy-nv
 	docker build --pull \
-				 --build-arg BASE_CONTAINER="${PRIVATE_REG}/scipy-notebook-nv" \
+				 --build-arg BASE_CONTAINER="${PRIVATE_REG}/scipy-nv" \
 				 -t "${PRIVATE_REG}/main-s1" -f jupyter-interface/Dockerfile .
 	docker push "${PRIVATE_REG}/main-s1"
 	docker build --pull \
@@ -104,3 +104,42 @@ main: scipy-nv
 				 --build-arg BASE_CONTAINER="${PRIVATE_REG}/main:${VERSION}" \
 				 -t "${PRIVATE_REG}/main-deploy:${VERSION}" -f Dockerfile .
 	docker push "${PRIVATE_REG}/main-deploy:${VERSION}"
+
+divedeep: scipy-nv
+	docker build --pull \
+				 --build-arg BASE_CONTAINER="${PRIVATE_REG}/scipy-nv" \
+				 -t "${PRIVATE_REG}/divedeep-s1" -f jupyter-interface/Dockerfile .
+	docker push "${PRIVATE_REG}/divedeep-s1"
+	docker build --pull \
+				 --build-arg BASE_CONTAINER="${PRIVATE_REG}/divedeep-s1" \
+				 -t "${PRIVATE_REG}/divedeep-s2" -f programming/Dockerfile .
+	docker push "${PRIVATE_REG}/divedeep-s2"
+	# docker build --pull \
+	# 			 --build-arg BASE_CONTAINER="${PRIVATE_REG}/divedeep-s2" \
+	# 			 -t "${PRIVATE_REG}/divedeep-s3" -f tex/Dockerfile .
+	# docker push "${PRIVATE_REG}/divedeep-s3"
+	# docker build --pull \
+	# 			 --build-arg BASE_CONTAINER="${PRIVATE_REG}/divedeep-s3" \
+	# 			 -t "${PRIVATE_REG}/divedeep-s4" -f math/Dockerfile .
+	# docker push "${PRIVATE_REG}/divedeep-s4"
+	docker build --pull \
+				 --build-arg BASE_CONTAINER="${PRIVATE_REG}/divedeep-s2" \
+				 -t "${PRIVATE_REG}/divedeep-s5" -f datamining/Dockerfile .
+	docker push "${PRIVATE_REG}/divedeep-s5"
+	docker build --pull \
+				 --build-arg BASE_CONTAINER="${PRIVATE_REG}/divedeep-s5" \
+				 -t "${PRIVATE_REG}/divedeep-s6" -f remote-display/Dockerfile .
+	docker push "${PRIVATE_REG}/divedeep-s6"
+	docker build --pull \
+				 --build-arg BASE_CONTAINER="${PRIVATE_REG}/divedeep-s6" \
+				 -t "${PRIVATE_REG}/divedeep-s7" -f grading/Dockerfile .
+	docker push "${PRIVATE_REG}/divedeep-s7"
+	docker build --pull \
+				 --build-arg BASE_CONTAINER="${PRIVATE_REG}/divedeep-s7" \
+				 -t "${PRIVATE_REG}/divedeep:${VERSION}" -f classic/Dockerfile .
+	docker push "${PRIVATE_REG}/divedeep:${VERSION}"
+	cd DIVE-deploy; \
+	docker build --pull \
+				 --build-arg BASE_CONTAINER="${PRIVATE_REG}/divedeep:${VERSION}" \
+				 -t "${PRIVATE_REG}/divedeep-deploy:${VERSION}" -f Dockerfile .
+	docker push "${PRIVATE_REG}/divedeep-deploy:${VERSION}"

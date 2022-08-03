@@ -19,13 +19,13 @@ RUN cd /tmp/ngshare_exchange && \
     fix-permissions "${CONDA_DIR}" && \
     rm -rf /tmp/ngshare_exchange
 
-# RUN jupyter nbextension install --symlink --sys-prefix --py nbgrader && \
-#     jupyter nbextension enable --sys-prefix --py nbgrader && \
-#     jupyter serverextension enable --sys-prefix --py nbgrader  && \
-#     jupyter nbextension disable --sys-prefix formgrader/main --section=tree && \
-#     jupyter nbextension disable --sys-prefix course_list/main --section=tree && \
-#     jupyter serverextension disable --sys-prefix nbgrader.server_extensions.course_list && \
-#     fix-permissions "${CONDA_DIR}"
+RUN jupyter nbextension install --symlink --sys-prefix --py nbgrader && \
+    jupyter nbextension enable --sys-prefix --py nbgrader && \
+    jupyter serverextension enable --sys-prefix --py nbgrader  && \
+    jupyter nbextension disable --sys-prefix formgrader/main --section=tree && \
+    jupyter nbextension disable --sys-prefix course_list/main --section=tree && \
+    jupyter serverextension disable --sys-prefix nbgrader.server_extensions.course_list && \
+    fix-permissions "${CONDA_DIR}"
 
 # COPY --chown=${NB_USER}:${NB_GID} nb/ /tmp/nb/
 # RUN cp -rf /tmp/nb/nbgrader_config /etc/jupyter/nbgrader_config.py && \

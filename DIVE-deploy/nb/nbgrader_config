@@ -1,0 +1,13 @@
+import os
+from ngshare_exchange import configureExchange
+c=get_config()
+configureExchange(c, 'http://ngshare-1629143514.cs5483.svc.cluster.local:8080/services/ngshare')
+
+# Add the following line to let students access courses without configuration
+# For more information, read Notes for Instructors in the documentation
+
+c.CourseDirectory.course_id = '*'
+c.Exchange.assignment_dir = os.environ['HOME']
+c.Exchange.path_includes_course = True
+c.Exchange.timezone = 'Hongkong'
+c.Validator.ignore_checksums = True

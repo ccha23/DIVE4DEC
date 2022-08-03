@@ -58,7 +58,7 @@ hub:
           return user
 
       class gi(GitHubOAuthenticator):
-        priv = True
+        priv = False
         async def authenticate(self, handler, data=None):
           user = await super().authenticate(handler, data)
           if user == None:
@@ -70,7 +70,7 @@ hub:
           return user
 
       class go(GoogleOAuthenticator):
-        priv = True
+        priv = False
         async def authenticate(self, handler, data=None, google_groups=None):
           user = await super().authenticate(handler, data, google_groups)
           if user == None:
@@ -206,19 +206,19 @@ singleuser:
       Recommended for notebooks that do not require GPU.
     kubespawner_override:
       cmd: ['start-singleuser.sh', '--LabApp.collaborative=True']
-      image: localhost:32000/main-deploy:0.0.0
+      image: localhost:32000/divedeep-deploy:0.0.1
   - display_name: 2G GPU Memory
     kubespawner_override:
       cmd: ['bf-start-singleuser.sh', '-n', '1', '-p', '0.125', '--', '--LabApp.collaborative=True']
-      image: localhost:32000/main-deploy:0.0.0
+      image: localhost:32000/divedeep-deploy:0.0.1
   - display_name: 4G GPU Memory
     kubespawner_override:
       cmd: ['bf-start-singleuser.sh', '-n', '1', '-p', '0.25', '--', '--LabApp.collaborative=True']
-      image: localhost:32000/main-deploy:0.0.0
-  - display_name: 8G GPU Memory
-    kubespawner_override:
-      cmd: ['bf-start-singleuser.sh', '-n', '1', '-p', '0.5', '--', '--LabApp.collaborative=True']
-      image: localhost:32000/main-deploy:0.0.0
+      image: localhost:32000/divedeep-deploy:0.0.1
+  # - display_name: 8G GPU Memory
+  #   kubespawner_override:
+  #     cmd: ['bf-start-singleuser.sh', '-n', '1', '-p', '0.5', '--', '--LabApp.collaborative=True']
+  #     image: localhost:32000/divedeep-deploy:0.0.1
   # - default: true
   #   description: |
   #     With GPU support.
